@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Fruits - Fruit sell{% endblock %}
+
+{% block body %}
+{% load static %}
+<div class="container mx-auto ">
+    <h4 class="my-3 fw-bold rounded">Available Fruits</h4>
+    <div class="row justify-content-start gap-2">
+
+
+        {% for fruit in data %}
+
+        <div class="card mb-3" style="width: 370px; height: fit-content;">
+            <div class="row">
+                <div class="col-4 d-flex justify-content-center align-items-center">
+                    {% if fruit.image %}
+                    <img class="card-img" src="{{fruit.image.url}}" class="img-fluid rounded-start" alt="...">
+                    {% else %}
+                    <img class="card-img" src="{% static './images/No-Image-Placeholder.svg' %}"
+                        class="img-fluid rounded-start" alt="...">
+                    {% endif %}
+                </div>
+                <div class="col-8 p-2 ps-0">
+                    <div class="card-text">
+                        <div class="p-2">
+                            <div class="d-flex justify-content-between">
+                                <p class="fw-bold card-title">{{fruit.name}}</p>
+                                {% if fruit.stocked_out %}
+                                {% else %}
+                                {% if fruit.discount > 0 %}
+                                <small class="text-danger fw-bold"> -{{ fruit.discount }}% </small>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                            <small class="card-text ">{{fruit.description | truncatewords:6}} <a
+                                    class="text-decoration-none"
+                                    href="{% url 'details' id=fruit.id %}">view</a></small><br>
+                            {% if fruit.stocked_out %}
+                            <small class="fw-bold"><s>{{fruit.price}}৳</s><span class="fw-bold text-danger ms-2">Stocked
+                                    out</span></small>
+                            {% else %}
+                            {% if fruit.discount > 0 %}
+                            <small class="fw-bold"><s>{{fruit.price}}৳</s> <span
+                                    class="text-danger">{{fruit.get_discounted_price}}৳ per {{fruit.unit}}</span> </small><br>
+                            {% else %}
+                            <small class="fw-bold">{{fruit.price}}৳ per {{fruit.unit}}</small><br>
+                            {% endif %}
+                            {% endif %}
+
+                            {% if request.user.is_staff %}
+                            <div class="mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'edit_fruit' id=fruit.id %}">Edit Post</a>
+                                <a class="card-btn btn btn-dark" href="{% url 'flash_sale' fruit.id %}">Add to
+                                    Flashsell</a>
+                                {% if fruit.stocked_out %}
+                                {% else %}
+                                <a class="card-btn btn btn-dark" href="{% url 'stocked_out' fruit.id %}">Make stock
+                                    Out</a>
+                                {% endif %}
+                                <a class="card-btn btn btn-dark" href="{% url 'remove_fruit' fruit.id %}">Delete
+                                    fruit</a>
+                            </div>
+                            {% else %}
+                            {% if fruit.stocked_out %}
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'add_to_wishlist' fruit.id %}">Add to
+                                    wishlist</a>
+                            </div>
+                            {% else %}
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'add_to_wishlist' fruit.id %}">Add to
+                                    wishlist</a>
+                                <a class="card-btn btn btn-dark" href="{% url 'add-to-cart' fruit.id %}">Add to Cart</a>
+                            </div>
+                            {% endif %}
+
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+
+    </div>
+    <div class="d-flex justify-content-center align-items-center mb-2">
+        {% if data.has_previous %}
+        <a class="page-btn btn btn-secondary" href="?page=1">&laquo; First page</a>
+        <a class="page-btn btn btn-secondary" href="?page={{ data.previous_page_number }}">&lsaquo; Previous</a>
+        {% endif %}
+        <span class="rounded border px-3" style="background-color: rgb(203, 230, 230);">Page {{ data.number }} of {{ data.paginator.num_pages}}</span>
+        {% if data.has_next %}
+        <a class="page-btn btn btn-secondary" href="?page={{ data.next_page_number }}">Next &rsaquo;</a>
+        <a class="page-btn btn btn-secondary" href="?page={{ data.paginator.num_pages }}">Last page &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Contact{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<div class="d-flex justify-content-between container mt-2" >
+    <div style="width: 47.5%;" class="container d-flex flex-column justify-content-center align-items-center my-3">
+        <img style="width: 300px;" class="rounded rounded-5 me-md-5" src="{% static 'img/Munna.jpg' %}" alt="">
+        <div style="max-width: 600px;" class="d-flex flex-column justify-content-center mt-3">
+            <h2 class="text-center text-success fw-bold">About Developer</h2>
+            <h5 class="text-center">Hello, I'm Mahadi Hasan Munna. Here I develop this web
+                application. If you need any help or query about this application you can send mail anytime!
+            </h5>
+            <p class="text-center"><a target="_blank" class="btn btn-primary mt-3" href="https://mahadi-hasan-munna.web.app/">Visit My Portfolio</a></p>
+        </div>
+    </div>
+    <div class="d-flex flex-column justify-content-center p-5 rounded rounded shadow-lg" style="width: 47.5%;; background: #e0dddd;">
+        <div class="text-center fw-bold mb-5 fs-1">
+            <header>Send your message!</header>
+        </div>
+        <form style="width: 440px;" class="mx-auto" enctype="multipart/form-data" action="" method="post">
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                <strong>Error!</strong> Please correct the following errors:
+                <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <!-- name -->
+            <div class="input-box">
+                <label for="id_name">Name:</label>
+                <input type="text" id="id_username" class="input-field" placeholder="Enter your full name" name="name" autocomplete="off" required>
+            </div>
+            <!-- email -->
+            <div class="input-box">
+                <label for="id_email">Email:</label>
+                <input type="email" id="id_email" class="input-field" placeholder="Enter your email" name="email" autocomplete="off" required>
+            </div>
+            <!-- feedback -->
+            <div class="input-box">
+                <label for="id_feedback">Message:</label>
+                <textarea rows="4" id="id_feedback" class="textarea-field" placeholder="Enter your message" name="feedback"></textarea>
+            </div>
+            
+            <!-- Submit Button -->
+            <div>
+                <input class="btn btn-outline-dark w-100 p-2 fw-bold" type="submit" value="Send">
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,98 @@
+<!-- profile_update.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block head_title %}Update Profile{% endblock %}
+{% block content %}
+<div class="form d-flex justify-content-center align-items-center my-3">
+    <div class="d-flex flex-column justify-content-center p-5 rounded rounded shadow-lg" style="width: 640px; background: #e9e8e8;">
+        <div class="text-center fw-bold mb-5 fs-1">
+            <h3>Update your profile</h3>
+        </div>
+        <form enctype="multipart/form-data" action="" method="POST">
+            {% csrf_token %}            
+            <!-- fruit Name -->
+            {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                <strong>Error!</strong> Please correct the following errors:
+                <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field }}:{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <div class="d-flex justify-content-between">
+                <div style="width: 47.5%;">
+                    <div>
+                        {% if form.instance.account.profile_image %}
+                        <img id="previewImage" class="uploaded-image center-image" src="{{ form.instance.account.profile_image.url }}" alt="Preview Image">
+                        {% else %}
+                        <img id="previewImage" class="uploaded-image center-image" src="{% static './images/profile.png' %}" alt="Preview Image">
+                        {% endif %}
+                    </div>
+                    <div class="input-box">
+                        <div class="input-box">
+                            <label for="uploadImage">Profile Image:</label>
+                            <input type="file" id="uploadImage" class="input-field" name="profile_image" onchange="displayImage()">
+                            <label class="up-image-label overflow-auto" for="uploadImage">
+                                {% if form.instance.account.profile_image %}
+                                <span class="image-label "><i class="fa-solid fa-upload me-2"></i>{{ form.instance.account.profile_image.name }}</span>
+                                {% else %}
+                                <span class="image-label "><i class="fa-solid fa-upload me-2"></i>Upload proofile image</span>
+                                {% endif %}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 47.5%;">
+                    <div class="input-box">
+                        <label for="id_first_name">First Name:</label>
+                        <input type="text" id="id_first_name" class="input-field" placeholder="Enter your first name" name="first_name" autocomplete="off" required value="{{ form.instance.first_name }}">
+                    </div>
+                    <div class="input-box">
+                        <label for="id_last_name">Last Name:</label>
+                        <input type="text" id="id_last_name" class="input-field" placeholder="Enter your last name" name="last_name" autocomplete="off" required value="{{ form.instance.last_name }}">
+                    </div>
+                    <div class="input-box">
+                        <label for="id_gender">Gender:</label>
+                        <select id="id_gender" class="input-field" name="gender" required>
+                            <option class="text-secondary" hidden>Select your gender</option>
+                            <option value="Male" {% if form.instance.account.gender == "Male" %} selected {% endif %}>Male</option>
+                            <option value="Female" {% if form.instance.account.gender == "Female" %} selected {% endif %}>Female</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Email -->
+            <div class="input-box">
+                <label for="id_email">Email:</label>
+                <input type="email" id="id_email" class="input-field" placeholder="Enter your email" name="email" autocomplete="off" required value="{{ form.instance.email }}">
+            </div>
+            <!-- Gender -->
+            
+            <!-- Save and Update Password Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <div style="width: 47.5%;">
+                    <input class="btn btn-outline-dark w-100 p-2 fw-bold" type="submit" value="Save">
+                </div>
+                <div style="width: 47.5%;">
+                    <a class="btn btn-outline-danger w-100 p-2 fw-bold text-decoration-none" href="{% url 'change_pass' %}">Update Password</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if form.instance.account.profile_image %}
+<script>
+    const imageUrl = "{{ form.instance.account.profile_image }}";
+    const fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+    document.querySelector('.image-label').textContent = fileName;
+</script>
+{% endif %}
+
+{% endblock %}

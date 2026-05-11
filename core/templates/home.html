@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head_title %}Home{% endblock %}
+{% block head_link %}
+    <link rel="stylesheet" href="{% static '/css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static '/css/owl.theme.default.min.css' %}">
+{% endblock %}
+{% block body %}
+{% load static %}
+
+{% if flashsale  %}
+<div class="container mx-auto ">
+    <h4 class="my-2 rounded text-danger fw-bold">Hot deals</h4>
+    <div class="row owl-carousel owl-theme gap-2">
+        {% for fruit in flashsale %}
+        <div class="item card mb-3" style="width: 350px; height: fit-content; border: none;">
+            <div class="row">
+                <div class="col-4 d-flex justify-content-center align-items-center">
+                    {% if fruit.image %}
+                    <img class="card-img" src="{{fruit.image.url}}" class="img-fluid rounded-start" alt="...">
+                    {% else %}
+                    <img class="card-img" src="{% static './images/No-Image-Placeholder.svg' %}"
+                        class="img-fluid rounded-start" alt="...">
+                    {% endif %}
+                </div>
+                <div class="col-8 p-2 ps-0">
+                    <div class="card-text">
+                        <div class="p-2">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">{{fruit.name}}</h6>
+                                {% if fruit.stocked_out %}
+                                {% else %}
+                                {% if fruit.discount > 0 %}
+                                <small class="text-danger fw-bold"> -{{ fruit.discount }}% </small>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                            <small class="card-text ">{{fruit.description | truncatewords:6}} <a
+                                    class="text-decoration-none"
+                                    href="{% url 'details' id=fruit.id %}">view</a></small><br>
+                            {% if fruit.stocked_out %}
+                            <small class="fw-bold"><s>{{fruit.price}}৳</s><span class="fw-bold text-danger ms-2">Stocked
+                                    out</span></small>
+                            {% else %}
+                            {% if fruit.discount > 0 %}
+                            <small class="fw-bold"><s>{{fruit.price}}৳</s> <span
+                                    class="text-danger">{{fruit.get_discounted_price}}৳ per {{fruit.unit}}</span> </small><br>
+                            {% else %}
+                            <small class="fw-bold">{{fruit.price}}৳ per {{fruit.unit}}</small><br>
+                            {% endif %}
+                            {% endif %}
+
+                            {% if request.user.is_staff %}
+                            <div class="mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'edit_fruit' id=fruit.id %}">Edit Post</a>
+                                <a class="card-btn btn btn-dark" href="{% url 'regular_sale' fruit.id %}">Make Regular Sale</a>
+                                {% if fruit.stocked_out %}
+                                {% else %}
+                                <a class="card-btn btn btn-dark" href="{% url 'stocked_out' fruit.id %}">Make stock
+                                    Out</a>
+                                {% endif %}
+                                <a class="card-btn btn btn-dark" href="{% url 'remove_fruit' fruit.id %}">Delete fruit</a>
+                            </div>
+                            {% else %}
+                            {% if fruit.stocked_out %}
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'add_to_wishlist' fruit.id %}">Add to
+                                    wishlist</a>
+                            </div>
+                            {% else %}
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'add_to_wishlist' fruit.id %}">Add to
+                                    wishlist</a>
+                                <a class="card-btn btn btn-dark" href="{% url 'add-to-cart' fruit.id %}">Add to Cart</a>
+                            </div>
+                            {% endif %}
+
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+
+    </div>
+</div>
+{% endif %}
+<div class="container mx-auto ">
+    <h4 class="my-2 rounded text-success fw-bold">Get more fresh Fruits from here</h4>
+    <div class="row ">
+
+
+        {% for fruit in data|slice:":6" %}
+
+        <div class="card mb-3" style="width: 373px; height: fit-content; border: none;">
+            <div class="row">
+                <div class="col-4 d-flex justify-content-center align-items-center">
+                    {% if fruit.image %}
+                    <img class="card-img" src="{{fruit.image.url}}" class="img-fluid rounded-start" alt="...">
+                    {% else %}
+                    <img class="card-img" src="{% static './images/No-Image-Placeholder.svg' %}"
+                        class="img-fluid rounded-start" alt="...">
+                    {% endif %}
+                </div>
+                <div class="col-8 p-2 ps-0">
+                    <div class="card-text">
+                        <div class="p-2">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">{{fruit.name}}</h6>
+                                {% if fruit.stocked_out %}
+                                {% else %}
+                                {% if fruit.discount > 0 %}
+                                <small class="text-danger fw-bold"> -{{ fruit.discount }}% </small>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                            <small class="card-text ">{{fruit.description | truncatewords:6}} <a
+                                    class="text-decoration-none"
+                                    href="{% url 'details' id=fruit.id %}">view</a></small><br>
+                            {% if fruit.stocked_out %}
+                            <small class="fw-bold"><s>{{fruit.price}}৳</s><span class="fw-bold text-danger ms-2">Stocked
+                                    out</span></small>
+                            {% else %}
+                            {% if fruit.discount > 0 %}
+                            <small class="fw-bold"><s>{{fruit.price}}৳</s> <span
+                                    class="text-danger">{{fruit.get_discounted_price}}৳ per {{fruit.unit}}</span> </small><br>
+                            {% else %}
+                            <small class="fw-bold">{{fruit.price}}৳ per {{fruit.unit}}</small><br>
+                            {% endif %}
+                            {% endif %}
+
+                            {% if request.user.is_staff %}
+                            <div class="mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'edit_fruit' id=fruit.id %}">Edit Post</a>
+                                <a class="card-btn btn btn-dark" href="{% url 'flash_sale' fruit.id %}">Add to
+                                    Flashsell</a>
+                                {% if fruit.stocked_out %}
+                                {% else %}
+                                <a class="card-btn btn btn-dark" href="{% url 'stocked_out' fruit.id %}">Make stock
+                                    Out</a>
+                                {% endif %}
+                                <a class="card-btn btn btn-dark" href="{% url 'remove_fruit' fruit.id %}">Delete fruit</a>
+                            </div>
+                            {% else %}
+                            {% if fruit.stocked_out %}
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'add_to_wishlist' fruit.id %}">Add to
+                                    wishlist</a>
+                            </div>
+                            {% else %}
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'add_to_wishlist' fruit.id %}">Add to
+                                    wishlist</a>
+                                <a class="card-btn btn btn-dark" href="{% url 'add-to-cart' fruit.id %}">Add to Cart</a>
+                            </div>
+                            {% endif %}
+
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+
+        <p class="text-center"><a class="btn btn-primary w-50" href="{% url 'fruits' %}">See All Fruits</a></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var owl = $('.owl-carousel');
+owl.owlCarousel({
+    loop:true,
+    nav:false,
+    dots:true,
+    responsive:{
+        0:{
+            items:1
+        },
+        600:{
+            items:2
+        },            
+        960:{
+            items:3
+        },
+        1200:{
+            items:3
+        }
+    }
+});
+owl.on('mousewheel', '.owl-stage', function (e) {
+    if (e.deltaY>0) {
+        owl.trigger('next.owl');
+    } else {
+        owl.trigger('prev.owl');
+    }
+    e.preventDefault();
+});
+</script>
+{% endblock %}

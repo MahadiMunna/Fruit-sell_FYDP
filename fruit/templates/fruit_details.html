@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block head_title %}{{object.name}}{% endblock %}
+{% block body %}
+<!-- fruit details  -->
+<div class="my-5 container mx-auto">
+  <div class="d-flex flex-lg-row flex-column gap-3 justify-content-center align-items-center">
+    <div class="col me-lg-3">
+      {% if object.image %}
+      <img src="{{object.image.url}}" class="w-100 rounded center-image" alt="...">
+      {% else %}
+      <img src="{% static './images/No-Image-Placeholder.svg' %}" class="img-fluid rounded center-image" alt="...">
+      {% endif %}
+    </div>
+    <div class="col w-auto" style="max-width: 700px;">
+      <h4 class="text-primary">{{object.name}}</h4>
+      <small class="text-secondary">{{object.timestamp}}</small>
+      <p>{{object.description}}</p>
+
+      <div class="d-flex justify-content-between">
+        <!-- price  -->
+        <div>
+          {% if object.discount > 0 %}
+          <h6 class="fw-bold"><s>{{object.price}}৳</s> <span class="text-danger">{{object.get_discounted_price}}৳ per {{object.unit}}</span> </h6>
+          <h6 class="text-danger fw-bold"> {{object.discount}}% Discount</h6><br>
+          {% else %}
+          <h6 class="fw-bold">{{object.price}}৳ per {{object.unit}}</h6><br>
+          {% endif %}
+          <a class="btn card-btn btn-dark" href="{% url 'add-to-cart' object.id %}">Add to Cart</a>
+        </div>
+
+        <!-- blockchain data  -->
+        <div>
+          <button class="btn btn-secondary page-btn mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            See Trace Details<i class="fa-solid fa-angles-down ms-1"></i>
+          </button>
+          <div class="collapse" id="collapseExample">
+              {% if blockchain_data %}
+                <small><span class=" fw-bold text-success">Origin: {{ blockchain_data.1 }}</span></small><br>
+                <small><span class="fw-bold text-secondary">Supply Date: {{ blockchain_data.2 }}</span></small><br>
+                <small><span class="fw-bold text-secondary">Expiry Date: {{ blockchain_data.3 }}</span></small><br>
+                <small><span class="fw-bold">Vendor: {{ blockchain_data.4 }}</span></small>
+              {% else %}
+                <p>No blockchain data available.</p>
+              {% endif %} <br>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="d-flex justify-content-between my-3">
+  <div style="width: 47.5%;" class="container mx-auto m-2">
+    {% if comments %}
+    <h4 class="text-center alert alert-info m-3">Total number of reviews: {{comments | length}}</h4>
+    <div class="card-body m-3">
+      {% for comment in comments %}
+      <div class="border rounded p-2 mb-2">
+        <div class="d-flex justify-content-between">
+          <p class="text-primary"><b>{{comment.name}}</b> <small
+              class="text-secondary" style="font-size: 12px;">{{comment.created_on}}</small></p>
+          <div>
+            {% for i in '01234' %}
+            {% if forloop.counter0 < comment.rate %} <i class="fa fa-star" style="color: orange; font-size: 12px;"></i>
+              {% else %}
+              <i class="fa fa-star" style="color:#ddd;font-size: 12px;"></i>
+              {% endif %}
+              {% endfor %}
+          </div>
+        </div>
+        {% if comment.image %}
+        <img class="w-25" src="{{ comment.image.url }}" alt=""><br>
+        {% endif %} 
+        <small class="mt-2">{{comment.review}}</small>
+      </div>
+      {% endfor %}
+      {% else %}
+      <h5 class="text-center alert alert-info m-3">No reviews found on this post!</h5>
+      {% endif %}
+    </div>
+  </div>
+  <div style="width: 47.5%;" class="container mx-auto m-2">
+    <h4 class="text-center alert alert-info m-3">Add Review</h4>
+    {% if can_review %}
+    <div class="card-body m-3">
+      <form enctype="multipart/form-data" action="" method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+          <strong>Error!</strong> Please correct the following errors:
+          <ul>
+            {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <li>{{ field }}: {{ error }}</li>
+            {% endfor %}
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        <div class="d-flex justify-content-between">
+          <div style="width: 47.5%;">
+            <div>
+              <img id="previewImage" class="uploaded-image center-image" src="{% static './images/up.png' %}"
+                alt="Preview Image">
+            </div>
+            <div class="input-box">
+              <div class="input-box">
+                <label for="uploadImage">Upload Image:</label>
+                <input type="file" id="uploadImage" class="input-field" name="image" onchange="displayImage()">
+                <label class="up-image-label overflow-hidden" for="uploadImage">
+                  <i class="fa-solid fa-upload me-2"></i>
+                  <span class="image-label ">Upload image</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div style="width: 47.5%;" class="input-box">
+            <label>Rate our product:</label>
+            <div class="rating-stars">
+              <label for="star-1" class="label"><i class="fa fa-star"></i></label>
+              <input class="rating" type="radio" id="star-1" name="rate" value="1">
+
+              <label for="star-2" class="label"><i class="fa fa-star"></i></label>
+              <input class="rating" type="radio" id="star-2" name="rate" value="2">
+
+              <label for="star-3" class="label"><i class="fa fa-star"></i></label>
+              <input class="rating" type="radio" id="star-3" name="rate" value="3">
+
+              <label for="star-4" class="label"><i class="fa fa-star"></i></label>
+              <input class="rating" type="radio" id="star-4" name="rate" value="4">
+
+              <label for="star-5" class="label"><i class="fa fa-star"></i></label>
+              <input class="rating" type="radio" id="star-5" name="rate" value="5">
+            </div>
+            <div>
+              <label for="id_review">Write your review:</label>
+              <textarea id="id_review" name="review" class="textarea-field" rows="4"
+                placeholder="Enter Your review here"></textarea>
+            </div>
+          </div>
+        </div>
+        <input type="submit" class="btn btn-outline-success w-100 p-2 fw-bold" value="Add review" />
+
+      </form>
+    </div>
+    {% else %}
+    <h5 class="text-center alert alert-danger m-3">You will be able to review after getting the product!</h5>
+    {% endif %}
+  </div>
+</div>
+<div style="margin-bottom: 100px;">
+</div>
+
+{% endblock %}

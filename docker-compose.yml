@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    image: fruitchain
+    ports:
+      - 8000:8000
+    command: python manage.py runserver 0.0.0.0:8000

@@ -1,0 +1,323 @@
+<!-- checkout.html -->
+{% extends 'base.html' %}
+{% block head_title %}Checkout - Fruit sell{% endblock %}
+{% load cart %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container mt-3">
+    <h2 class="btn btn-dark text-center w-100 shadow-lg">Checkout</h2>
+</div>
+<div class="d-flex container justify-content-between">
+    
+    <div style="width: 47.5%;" class="mt-3">
+        <h2 class="btn btn-dark text-center  w-100 shadow-lg">Your Shopping Cart</h2>
+
+        <table class="table table-bordered table-striped shadow-lg rounded">
+            <thead class="bg-primary text-white">
+                <tr class="text-center">
+                    <th>Image</th>
+                    <th>Item Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Remove Item</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if carts %}
+                {% for cart in carts %}
+                <tr class="text-center">
+                    <td>
+                        {% if cart.item.image %}
+                        <img style="width: 50px; height: 35px;" src="{{ cart.item.image.url }}"
+                            class="img-fluid rounded" alt="Product Image">
+                        {% else %}
+                        <img style="width: 50px; height: 35px;" src="{% static './images/No-Image-Placeholder.svg' %}"
+                            class="img-fluid rounded" alt="No Image">
+                        {% endif %}
+                    </td>
+                    <td><a style="text-decoration: none;" href="{% url 'details' id=cart.item.id %}">{{ cart.item.name }}-{{ cart.item.unit }}</a></td>
+                    
+                    {% if cart.item.discount > 0 %}
+                    <td><s>{{ cart.item.price }}</s>৳ <br><span class="text-danger">{{ cart.item.get_discounted_price }}৳</span></td>
+                    {% else %}
+                    <td>{{ cart.item.price }}৳</td>
+                    {% endif %}
+                    <td>
+                        <small><a href="{% url 'increase-decrease' pk=cart.item.id type='decrease'  %}"><i class="fa-solid fa-minus"></i></a><input style="width: 20px;" type="text" class="text-center"  value="{{ cart.quantity }}" readonly><a class="ms-1" href="{% url 'increase-decrease' pk=cart.item.id type='increase'  %}"><i class="fa-solid fa-plus"></i></a></small>
+                    </td>
+                    <td>{{ cart.get_total }}৳</td>
+                    <td><a href="{% url 'remove' pk=cart.item.id %}" class="btn btn-danger manage_order_btn">Remove</a></td>
+                </tr>
+                {% endfor %}
+                <tr class="text-center bg-light">
+                    <td colspan="4"><b>Total Cost</b></td>
+                    <td colspan="2"><b>{{ order.get_totals }}৳</b></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td class="text-center fw-bold text-danger" colspan="6">Your Cart is empty! Add fruits for order.
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        
+        <table class="table table-bordered table-striped shadow-lg rounded ">
+            <thead class="text-center">
+                <tr>
+                    <h2 style="width: 100%;" class="text-center btn btn-dark mt-3" colspan="2">Order summary</h2>
+                </tr>
+                <tr>
+                    <th>Item Name x Qunatity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                {% for item in order_item %}
+                <tr>
+                    <td>{{ item.item.name }}-{{ item.item.unit }} x {{item.quantity}}</td>
+                    <td>{{ item.get_total }}৳</td>
+                </tr>
+                {% endfor %}
+                <tr class="fw-bold">
+                    <td>Sub Total</td>
+                    <td>{{ order_total }}৳</td>
+                </tr>
+            </tbody>
+        </table>
+        
+    </div>
+    
+
+    <div style="width: 47.5%;">
+        <div class="mt-3">
+            <h2 class="btn btn-dark text-center w-100 shadow-lg">Shipping Details</h2>
+            {% if carts %}
+                <div class="form d-flex justify-content-center align-items-center">
+                    <div class="d-flex flex-column justify-content-center p-4 rounded rounded shadow-lg" style=" background: #F2F2F2;">
+                        <form enctype="multipart/form-data" action="" method="post">
+                            {% csrf_token %}
+                            <div class="d-flex justify-content-between">
+                                <!-- Full name -->
+                                <div style="width: 47.5%;" class="input-box">
+                                    <label for="id_name">Customer Name:</label>
+                                    <input type="text" id="id_name" class="input-field" placeholder="Enter your first name" name="full_name" {% if billing_address.instance.full_name %} value="{{billing_address.instance.full_name}}" {% else %} value="{{request.user.first_name}} {{request.user.last_name}}" {% endif %} required>
+                                </div>
+                                <!-- Phone -->
+                                <div style="width: 47.5%;" class="input-box">
+                                    <label for="id_phone">Phone Number:</label>
+                                    <input type="text" id="id_phone" class="input-field" placeholder="Enter your phone number" {% if billing_address.instance.phone_number %} value="{{billing_address.instance.phone_number}}" {% endif %} name="phone_number" autocomplete="off" required>
+                                </div>
+                            </div>
+                                <!-- Address -->
+                            <div class="d-flex justify-content-between">
+                                <div style="width: 47.5%;">
+                                    <div class="input-box">
+                                        <label for="id_address">Address:</label>
+                                        <textarea rows="4" id="id_address" class="textarea-field" placeholder="Enter your address" name="address">{% if billing_address.instance.address %}{{billing_address.instance.address}}{% endif %}</textarea>
+                                    </div>
+                                    <div class="input-box">
+                                        <label for="id_postal_code">Postal Code:</label>
+                                        <input type="text" id="id_postal_code" class="input-field" name="postal_code" {% if billing_address.instance.postal_code %}
+                                        value="{{billing_address.instance.postal_code}}"
+                                        {% endif %} placeholder="Enter your postal code"  autocomplete="off" required>
+                                    </div>
+                                </div>
+                                <div style="width: 47.5%;">
+                                        <div class="input-box">
+                                            <label for="id_division">Division:</label>
+                                            <select id="id_division" class="input-field" name="division" required>
+                                                {% if billing_address.instance.division %}
+                                                <option value="{{billing_address.instance.division}}" >{{billing_address.instance.division}}</option>
+                                                {% endif %}
+                                                <option hidden>Select your division</option>
+                                                <option value="Dhaka">Dhaka</option>
+                                                <option value="Chattogram">Chattogram</option>
+                                                <option value="Rajshahi">Rajshahi</option>
+                                                <option value="Khulna">Khulna</option>
+                                                <option value="Barishal">Barishal</option>
+                                                <option value="Sylhet">Sylhet</option>
+                                                <option value="Rangpur">Rangpur</option>
+                                                <option value="Mymensingh">Mymensingh</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-box">
+                                            <label for="id_district">District:</label>
+                                            <select id="id_district" class="input-field" name="district" required>
+                                                {% if billing_address.instance.district %}
+                                                <option value="{{billing_address.instance.district}}" >{{billing_address.instance.district}}</option>
+                                                {% endif %}
+                                                <option value="" hidden>Select division first</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-box">
+                                            <label for="id_police_station">Police Station:</label>
+                                            <select id="id_police_station" class="input-field" name="police_station" required>
+                                                {% if billing_address.instance.police_station %}
+                                                <option value="{{billing_address.instance.police_station}}">{{billing_address.instance.police_station}}</option>
+                                                {% endif %}
+                                                <option value="" hidden>Select district first</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                            </div>
+                            
+                            <!-- Division -->
+                            
+                            
+                            <div class="">
+                                
+                                <div class="input-box">
+                                    <label class="fw-bold" for="id_payment_method">Payment Method:</label>
+                                    <select id="id_payment_method" class="input-field" name="payment_method" required>
+                                        <option value="" hidden>Select payment method</option>
+                                        <option value="Cash on delivery">Cash on delivery</option>
+                                        <option value="SSLCOMMERZ">SSLCOMMERZ</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <input class="btn btn-outline-dark w-100 p-2 fw-bold my-3" type="submit" value="Place Order">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <h5 class="text-center text-danger">Add fruit first!</h5>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // district data based on division
+    const districtData = {
+        Dhaka: ["Dhaka", "Faridpur", "Gazipur", "Gopalganj", "Jamalpur", "Kishoreganj", "Madaripur", "Manikganj", "Munshiganj", "Mymensingh", "Narayanganj", "Narsingdi", "Netrakona", "Rajbari", "Shariatpur", "Sherpur", "Tangail"],
+        Chattogram: ["Brahmanbaria", "Chandpur", "Chattogram", "Cumilla", "Coxs_Bazar", "Feni", "Khagrachari", "Lakshmipur", "Noakhali", "Rangamati"],
+        Rajshahi: ["Bogura", "Chapai Nawabganj", "Joypurhat", "Naogaon", "Natore", "Pabna", "Rajshahi", "Sirajganj"],
+        Khulna: ["Bagerhat", "Chuadanga", "Jessore", "Jhenaidah", "Khulna", "Kushtia", "Magura", "Meherpur", "Narail", "Satkhira"],
+        Barishal: ["Barishal", "Bhola", "Jhalokati", "Patuakhali", "Pirojpur"],
+        Sylhet: ["Habiganj", "Moulvibazar", "Sunamganj", "Sylhet"],
+        Rangpur: ["Dinajpur", "Gaibandha", "Kurigram", "Lalmonirhat", "Nilphamari", "Panchagarh", "Rangpur", "Thakurgaon"],
+        Mymensingh: ["Jamalpur", "Mymensingh", "Netrokona", "Sherpur"]
+    };
+    const policeStationData = {
+        Dhaka: ["Gulshan", "Mohammadpur", "Dhanmondi", "Mirpur", "Uttara", "Banani", "Baridhara", "Motijheel", "Tejgaon", "Pallabi"],
+        Faridpur: ["Faridpur Sadar", "Alfadanga", "Bhanga", "Boalmari", "Charbhadrasan", "Madhukhali", "Nagarkanda", "Sadarpur"],
+        Gazipur: ["Gazipur Sadar", "Kaliakair", "Kaliganj", "Kapasia", "Sreepur"],
+        Gopalganj: ["Gopalganj Sadar", "Kashiani", "Kotalipara", "Muksudpur", "Tungipara"],
+        Jamalpur: ["Jamalpur Sadar", "Baksiganj", "Dewanganj", "Islampur", "Madarganj", "Melandaha", "Sarishabari"],
+        Kishoreganj: ["Kishoreganj Sadar", "Austagram", "Bajitpur", "Bhairab", "Hossainpur", "Itna", "Karimganj", "Katiadi", "Kuliarchar", "Mithamain", "Nikli", "Pakundia", "Tarail"],
+        Madaripur: ["Madaripur Sadar", "Kalkini", "Rajoir", "Shibchar"],
+        Manikganj: ["Manikganj Sadar", "Daulatpur", "Ghior", "Harirampur", "Saturia", "Shibganj"],
+        Munshiganj: ["Munshiganj Sadar", "Gazaria", "Lohajang", "Sirajdikhan", "Sreenagar", "Tongibari"],
+        Narayanganj: ["Narayanganj Sadar", "Araihazar", "Bandar", "Rupganj", "Sonargaon"],
+        Narsingdi: ["Narsingdi Sadar", "Belabo", "Monohardi", "Palash", "Raipura", "Shibpur"],
+        Rajbari: ["Rajbari Sadar", "Baliakandi", "Goalanda", "Pangsha"],
+        Shariatpur: ["Shariatpur Sadar", "Bhedarganj", "Damudya", "Gosairhat", "Naria", "Zajira"],
+        Sherpur: ["Sherpur Sadar", "Jhenaigati", "Nakla", "Nalitabari", "Sreebardi"],
+        Tangail: ["Tangail Sadar", "Basail", "Bhuapur", "Delduar", "Ghatail", "Gopalpur", "Kalihati", "Madhupur", "Mirzapur", "Nagarpur", "Sakhipur"],
+        Brahmanbaria: ["Brahmanbaria Sadar", "Ashuganj", "Bancharampur", "Brahmanbaria Sadar", "Kasba", "Nabinagar", "Nasirnagar", "Sarail"],
+        Chandpur: ["Chandpur Sadar", "Faridganj", "Haimchar", "Haziganj", "Kachua", "Matlob", "Shahrasti"],
+        Chattogram: ["Chattogram Sadar", "Anwara", "Banshkhali", "Boalkhali", "Chandanaish", "Fatikchhari", "Hathazari", "Lohagara", "Mirsharai", "Patiya", "Rangunia", "Raozan", "Sandwip", "Satkania", "Sitakunda"],
+        Cumilla: ["Cumilla Sadar", "Barura", "Brahmanpara", "Burichang", "Chandina", "Chauddagram", "Daudkandi", "Davidhar", "Debidwar", "Homna", "Laksam", "Monohorgonj", "Meghna", "Muradnagar", "Nangalkot", "Titas"],
+        Coxs_Bazar: ["Cox's Bazar Sadar", "Chakaria", "Kutubdia", "Maheshkhali", "Ramu", "Teknaf", "Ukhia"],
+        Feni: ["Feni Sadar", "Chhagalnaiya", "Daganbhuiyan", "Parshuram", "Sonagazi"],
+        Khagrachari: ["Khagrachhari Sadar", "Dighinala", "Lakshmichhari", "Mahalchhari", "Manikchhari", "Matiranga", "Panchhari", "Ramgarh"],
+        Lakshmipur: ["Lakshmipur Sadar", "Raipur", "Ramganj", "Ramgati"],
+        Noakhali: ["Noakhali Sadar", "Begumganj", "Chatkhil", "Companiganj", "Hatiya", "Senbagh", "Subarnachar"],
+        Rangamati: ["Rangamati Sadar", "Belaichhari", "Bagaichhari", "Barkal", "Juraichhari", "Langadu", "Naniarchar", "Rajasthali"],
+        Bogura: ["Adamdighi", "Bogra Sadar", "Dhunat", "Dhupchachia", "Gabtali", "Kahaloo", "Nandigram", "Sariakandi", "Shajahanpur", "Sherpur", "Shibganj", "Sonatala"],
+        ChapaiNawabganj: ["Bholahat", "Chapai Nawabganj Sadar", "Gomostapur", "Nachole", "Shibganj"],
+        Joypurhat: ["Akkelpur", "Joypurhat Sadar", "Kalai", "Khetlal", "Panchbibi"],
+        Naogaon: ["Atrai", "Badalgachhi", "Dhamoirhat", "Mahadebpur", "Naogaon Sadar", "Niamatpur", "Patnitala", "Porsha", "Raninagar", "Sapahar"],
+        Natore: ["Bagatipara", "Baraigram", "Gurudaspur", "Lalpur", "Natore Sadar", "Singra"],
+        Pabna: ["Ataikula", "Bera", "Bhangura", "Chatmohar", "Faridpur", "Ishwardi", "Pabna Sadar", "Sujanagar"],
+        Rajshahi: ["Bagha", "Bagmara", "Charghat", "Durgapur", "Godagari", "Mohanpur", "Paba", "Puthia", "Tanore"],
+        Sirajganj: ["Belkuchi", "Chauhali", "Kamarkhanda", "Kazipur", "Raiganj", "Shahjadpur", "Sirajganj Sadar", "Tarash", "Ullahpara"],
+        Bagerhat: ["Bagerhat Sadar", "Chitalmari", "Fakirhat", "Kachua", "Mollahat", "Mongla", "Morrelganj", "Rampal", "Sarankhola"],
+        Chuadanga: ["Alamdanga", "Chuadanga Sadar", "Damurhuda", "Jibannagar"],
+        Jessore: ["Abhaynagar", "Bagherpara", "Chaugachha", "Jessore Sadar", "Jhikargachha", "Keshabpur", "Manirampur", "Sharsha"],
+        Jhenaidah: ["Harinakunda", "Jhenaidah Sadar", "Kaliganj", "Kotchandpur", "Maheshpur", "Shailkupa"],
+        Khulna: ["Batiaghata", "Dacope", "Dighalia", "Dumuria", "Koyra", "Paikgachha", "Phultala", "Rupsha", "Terokhada"],
+        Kushtia: ["Bheramara", "Daulatpur", "Khoksa", "Kumarkhali", "Kushtia Sadar", "Mirpur"],
+        Magura: ["Magura Sadar", "Mohammadpur", "Shalikha", "Sreepur"],
+        Meherpur: ["Gangni", "Meherpur Sadar"],
+        Narail: ["Kalia", "Lohagara", "Narail Sadar"],
+        Satkhira: ["Assasuni", "Debhata", "Kaliganj", "Kolaroa", "Satkhira Sadar", "Shyamnagar", "Tala"],
+        Barishal: ["Bakerganj", "Banaripara", "Gaurnadi", "Hizla", "Barishal Sadar", "Mehendiganj", "Muladi", "Wazirpur"],
+        Bhola: ["Bhola Sadar", "Burhanuddin", "Char Fasson", "Daulatkhan", "Lalmohan", "Manpura", "Tazumuddin"],
+        Jhalokati: ["Jhalokati Sadar", "Kathalia", "Nalchity", "Rajapur"],
+        Patuakhali: ["Bauphal", "Dashmina", "Galachipa", "Kala Para", "Mirzaganj", "Patuakhali Sadar", "Rangabali"],
+        Pirojpur: ["Bhandaria", "Kaukhali", "Mathbaria", "Nazirpur", "Pirojpur Sadar", "Swarupkathi"],
+        Habiganj: ["Ajmiriganj", "Bahubal", "Baniachang", "Chunarughat", "Habiganj Sadar", "Lakhai", "Madhabpur", "Nabiganj"],
+        Moulvibazar: ["Barlekha", "Kamalganj", "Kulaura", "Moulvibazar Sadar", "Rajnagar", "Sreemangal"],
+        Sunamganj: ["Bishwamvarpur", "Chhatak", "Derai", "Dharampasha", "Duara bazar", "Jamalganj", "Shulla Shahi", "Sunamganj Sadar", "Tahirpur"],
+        Sylhet: ["Balaganj", "Beanibazar", "Bishwanath", "Companiganj", "Fenchuganj", "Golapganj", "Gowainghat", "Jaintiapur", "Kanaighat", "Zakiganj", "Sylhet Sadar"],
+        Dinajpur: ["Birampur", "Birganj", "Chirirbandar", "Phulbari", "Ghoraghat", "Hakimpur", "Kaharole", "Khansama", "Dinajpur Sadar", "Nawabganj", "Parbatipur"],
+        Gaibandha: ["Fulchhari", "Gaibandha Sadar", "Gobindaganj", "Palashbari", "Sadullapur", "Saghata", "Sundarganj"],
+        Kurigram: ["Bhurungamari", "Char Rajibpur", "Chilmari", "Kurigram Sadar", "Nageshwari", "Phulbari", "Rajarhat", "Rajibpur", "Ulipur"],
+        Lalmonirhat: ["Aditmari", "Hatibandha", "Kaliganj", "Lalmonirhat Sadar", "Patgram"],
+        Nilphamari: ["Dimla", "Domar", "Jaldhaka", "Kishoreganj", "Nilphamari Sadar", "Saidpur"],
+        Panchagarh: ["Atwari", "Boda", "Debiganj", "Panchagarh Sadar", "Tetulia"],
+        Rangpur: ["Badarganj", "Gangachara", "Kaunia", "Mithapukur", "Pirgachha", "Rangpur Sadar", "Taraganj"],
+        Thakurgaon: ["Baliadangi", "Haripur", "Pirganj", "Ranisankail", "Thakurgaon Sadar"],
+        Jamalpur: ["Bakshiganj", "Dewanganj", "Islampur", "Jamalpur Sadar", "Madarganj", "Melandaha", "Sarishabari"],
+        Mymensingh: ["Bhaluka", "Dhobaura", "Fulbaria", "Gaffargaon", "Gauripur", "Haluaghat", "Ishwarganj", "Muktagachha", "Mymensingh Sadar", "Nandail", "Phulpur", "Trishal"],
+        Netrokona: ["Atpara", "Barhatta", "Durgapur", "Khaliajuri", "Kalmakanda", "Kendua", "Madan", "Mohanganj", "Netrokona Sadar", "Purbadhala"],
+        Sherpur: ["Jhenaigati", "Nakla", "Nalitabari", "Sherpur Sadar", "Sreebardi"]
+    }
+
+    // Function to populate cities based on selected division
+    function populateDistricts() {
+        const divisionSelect = document.getElementById("id_division");
+        const districtSelect = document.getElementById("id_district");
+        const selectedDivision = divisionSelect.value;
+
+
+        // Clear district options
+        districtSelect.innerHTML = '<option value="">Select your district</option>';
+        // Populate cities based on selected division
+        if (selectedDivision && districtData[selectedDivision]) {
+            districtData[selectedDivision].forEach(district => {
+                const option = document.createElement("option");
+                option.value = district;
+                option.text = district;
+                districtSelect.appendChild(option);
+            });
+        }
+    }
+    function populatePoliceStations() {
+        const districtSelect = document.getElementById("id_district");
+        const policeStationSelect = document.getElementById("id_police_station");
+        const selectedDistrict = districtSelect.value;
+
+
+        policeStationSelect.innerHTML = '<option value="">Select your police station</option>';
+        
+        if (selectedDistrict && policeStationData[selectedDistrict]) {
+            policeStationData[selectedDistrict].forEach(policeStation => {
+                const option = document.createElement("option");
+                option.value = policeStation;
+                option.text = policeStation;
+                policeStationSelect.appendChild(option);
+            });
+        }
+    }
+    // Event listener for division selection
+    document.getElementById("id_division").addEventListener("change", populateDistricts);
+    document.getElementById("id_district").addEventListener("change", populatePoliceStations);
+
+    // Prevent form submission for demonstration purposes
+    document.getElementById("districtForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        alert("Form submitted!"); // You can replace this with your own submission logic
+    });
+    document.getElementById("districtForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        alert("Form submitted!"); // You can replace this with your own submission logic
+    });
+</script>
+{% endblock %}

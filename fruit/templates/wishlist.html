@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Wishlist{% endblock %}
+
+{% block body %}
+{% load static %}
+<div class="container mx-auto ">
+    <h4 class="fw-bold my-3 rounded">Your wishlist</h4>
+    <div class="row justify-content-start gap-2">
+
+        {% if fruits %}
+        {% for fruit in fruits %}
+
+        <div class="card mb-3" style="width: 370px; height: fit-content;">
+            <div class="row">
+                <div class="col-4 d-flex justify-content-center align-items-center">
+                    {% if fruit.fruit.image %}
+                    <img class="card-img" src="{{fruit.fruit.image.url}}" class="img-fluid rounded-start" alt="...">
+                    {% else %}
+                    <img class="card-img" src="{% static './images/No-Image-Placeholder.svg' %}"
+                        class="img-fluid rounded-start" alt="...">
+                    {% endif %}
+                </div>
+                <div class="col-8 p-2 ps-0">
+                    <div class="card-text">
+                        <div class="p-2">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">{{fruit.fruit.name}}</h6>
+                                {% if fruit.fruit.stocked_out %}
+                                {% else %}
+                                {% if fruit.fruit.discount > 0 %}
+                                <small class="text-danger fw-bold"> -{{ fruit.fruit.discount }}% </small>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                            <small class="card-text ">{{fruit.fruit.description | truncatewords:6}} <a
+                                    class="text-decoration-none"
+                                    href="{% url 'details' id=fruit.fruit.id %}">view</a></small><br>
+                            {% if fruit.fruit.stocked_out %}
+                            <small class="fw-bold"><s>{{fruit.fruit.price}}৳</s><span class="fw-bold text-danger ms-2">Stocked
+                                    out</span></small>
+                            {% else %}
+                            {% if fruit.fruit.discount > 0 %}
+                            <small class="fw-bold"><s>{{fruit.fruit.price}}৳</s> <span
+                                    class="text-danger">{{fruit.fruit.get_discounted_price}}৳ per {{fruit.unit}}</span> </small><br>
+                            {% else %}
+                            <small class="fw-bold">{{fruit.fruit.price}}৳ per {{fruit.unit}}</small><br>
+                            {% endif %}
+                            {% endif %}
+
+                            
+                            {% if fruit.fruit.stocked_out %}
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'remove_from_wishlist' fruit.id %}">Remove</a>
+                            </div>
+                            {% else %}
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'remove_from_wishlist' fruit.id %}">Remove</a>
+                                <a class="card-btn btn btn-dark" href="{% url 'add-to-cart' fruit.id %}">Add to Cart</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+        {% else %}
+        <h5 class="text-danger">Your wishlist is empty</h5>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

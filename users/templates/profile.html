@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block head_title %}Profile{% endblock %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+
+<div class="container mx-auto d-flex justify-content-between">
+  <div class="text-center rounded rounded-4 shadow-lg p-3 fw-bold mt-4" style="max-width: 300px; height:93vh" >
+    {% if request.user.account.profile_image %}
+    <img class="w-75 rounded-4 shadow-lg" src="{{request.user.account.profile_image.url}}" class="img-fluid rounded-start" alt="...">
+    {% else %}
+    <img class="w-75 rounded-4 shadow-lg" src="{% static './images/profile.png' %}" class="img-fluid rounded-start"
+      alt="...">
+    {% endif %}
+    <br><br>
+    <span class="fs-2">{{request.user.first_name}} {{request.user.last_name}}</span><br><br>
+    
+    <a class="btn btn-primary" style="display:block"  href="{% url 'update_profile' %}">Edit Profile</a>
+  </div>
+  <div class="container mx-auto text-center">
+    <p style="margin: 20px 0px 20px 0px;" class="text-center fw-bold p-3 rounded fs-5"><span style="padding:10px" class="alert alert-danger">Your Orders</span>
+    </p>
+    {% if orders %}
+    <table style="margin-bottom: 200px;" class="table table-striped border border-3 shadow">
+      <thead>
+        <tr>
+          <th scope="col">Order Id</th>
+          <th scope="col">Ordered Items</th>
+          <th scope="col">Total Cost</th>
+          <th scope="col">Payment Method</th>
+          <th scope="col">Order Status</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>
+            {{ order.orderId }}
+          </td>
+          <td>
+            <ul style="padding: 0;">
+              {% for item in order.order_items.all %}
+                  <li><a style="text-decoration: none;" href="{% url 'details' id=item.item.id %}">{{ item.item.name }}-{{ item.item.unit }}</a> x {{ item.quantity }}</li>
+              {% endfor %}
+          </ul>
+          </td>
+          
+          <td>{{ order.get_totals }}৳</td>
+          <td>{{ order.payment_method }}</td>
+          {% if order.order_status == 'Cancelled' %}
+          <td class="text-danger">{{ order.order_status }}</td>
+          {% elif order.order_status == 'Delivered' %}
+          <td class="text-success">{{ order.order_status }}</td>
+          {% else %}
+          <td class="text-primary">{{ order.order_status }}</td>
+          {% endif %}          
+          {% if order.cancelled == False and order.order_status != 'Delivered' %}
+          <td><a href="{% url 'cancel-order' order.id %}" title="Cancel this order" class="btn btn-danger manage_order_btn"> Cancel Order </a></td>
+          {% else %}
+          <td><a href="{% url 'remove-order' order.id %}" title="Remove this record" class="btn btn-secondary manage_order_btn"> Remove </a></td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+        {% else %}
+        <h4 class="text-center text-secondary" style="margin-top: 100px;">You don't have any orders!</h4>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+{% endblock %}

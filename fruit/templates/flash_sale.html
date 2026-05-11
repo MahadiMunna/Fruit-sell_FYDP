@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Flashsale{% endblock %}
+
+{% block body %}
+{% load static %}
+<div class="container mx-auto ">
+    <h4 class="fw-bold my-4">Fruits in flashsale</h4>
+    <div class="row justify-content-start gap-2">
+        {% if request.user.is_staff %}
+        {% for fruit in data %}
+
+        <div class="card mb-3" style="width: 370px; height: fit-content;">
+            <div class="row">
+                <div class="col-4 d-flex justify-content-center align-items-center">
+                    {% if fruit.image %}
+                    <img class="card-img" src="{{fruit.image.url}}" class="img-fluid rounded-start" alt="...">
+                    {% else %}
+                    <img class="card-img" src="{% static './images/No-Image-Placeholder.svg' %}" class="img-fluid rounded-start" alt="...">
+                    {% endif %}
+                </div>
+                <div  class="col-8 p-2 ps-0">
+                    <div class="card-text">
+                        <div class="p-2">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">{{fruit.name}}</h6>
+                                {% if fruit.discount > 0 %}
+                                <small class="text-danger fw-bold"> -{{ fruit.discount }}% </small>
+                                {% endif %}
+                            </div>
+                            <small class="card-text ">{{fruit.description | truncatewords:6}} <a class="text-decoration-none"
+                                    href="{% url 'details' id=fruit.id %}">view</a></small><br>
+                            {% if fruit.discount > 0 %}
+                            <small class="fw-bold"><s>{{fruit.price}}৳</s> <span  class="text-danger">{{fruit.get_discounted_price}}৳ per {{fruit.unit}}</span> </small><br>
+                                {% else %}
+                            <small class="fw-bold">{{fruit.price}}৳ per {{fruit.unit}}</small><br>
+                            {% endif %}
+                            {% if request.user.is_staff %}
+                            <div class="mt-2">
+                                <a class="card-btn btn btn-dark" href="{% url 'regular_sale' fruit.id %}">Make Regular Sale</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+        {% endif %}
+        
+    </div>
+</div>
+{% endblock %}

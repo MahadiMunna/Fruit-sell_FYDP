@@ -1,0 +1,53 @@
+<!-- change_password.html -->
+{% extends 'base.html' %}
+{% block head_title %}Update Password{% endblock %}
+
+{% block content %}
+<div class="form d-flex justify-content-center align-items-center mt-2">
+    <div class="d-flex flex-column justify-content-center p-5 rounded rounded shadow-lg" style="width: 640px;  background: #e9e8e8;">
+        <div class="text-center fw-bold mb-3 fs-1">
+            <header>Update your password</header>
+        </div>
+        <form style="width: 440px;" class="mx-auto" enctype="multipart/form-data" action="" method="post">
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                <strong>Error!</strong> Please correct the following errors:
+                <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <div class="input-box">
+                <label for="id_old_password">Old Password:</label>
+                <input type="password" id="id_old_password" class="input-field" placeholder="Enter your old password" name="old_password" autocomplete="off" required>
+                {% for err in form.old_password.errors %}
+                    <small class="text-dnager ms-2">{{ err }}</small>
+                {% endfor %}
+            </div>
+            <div class="input-box">
+                <label for="id_new_password1">New Password:</label>
+                <input type="password" id="id_new_password1" class="input-field" placeholder="Enter your new password" name="new_password1" autocomplete="off" required>
+                {% for err in form.new_password1.errors %}
+                    <small class="text-dnager ms-2">{{ err }}</small>
+                {% endfor %}
+            </div>
+            <div class="input-box">
+                <label for="id_new_password2">Confirm New Password:</label>
+                <input type="password" id="id_new_password2" class="input-field" placeholder="Re-enter your new password" name="new_password2" autocomplete="off" required>
+                {% for err in form.new_password2.errors %}
+                    <small class="text-dnager ms-2">{{ err }}</small>
+                {% endfor %}
+            </div>
+            <small class="ps-2"><a href="{% url 'reset_password' %}">Forgot Password?</a></small><br><br>
+            <div>
+                <input class="btn btn-outline-dark w-100 p-2 fw-bold" type="submit" value="Update Password">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

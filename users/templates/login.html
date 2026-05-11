@@ -1,0 +1,47 @@
+<!-- login.html -->
+{% extends 'base.html' %}
+{% block head_title %}Login{% endblock %}
+{% block content %}
+<div class="form d-flex justify-content-center align-items-center mt-2">
+    <div class="d-flex flex-column justify-content-center p-5 rounded rounded shadow-lg" style="width: 640px; background: #e0dddd;">
+        <div class="text-center fw-bold mb-5 fs-1">
+            <header>Login</header>
+        </div>
+        <form style="width: 440px;" class="mx-auto" enctype="multipart/form-data" action="" method="post">
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                <strong>Error!</strong> Please correct the following errors:
+                <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <!-- Username -->
+            <div class="input-box">
+                <label for="id_username">Username:</label>
+                <input type="text" id="id_username" class="input-field" placeholder="Enter your username" name="username" autocomplete="off" required>
+            </div>
+            <!-- Password -->
+            <div class="input-box">
+                <label for="id_password">Password:</label>
+                <input type="password" id="id_password" class="input-field" placeholder="Enter your password" name="password" autocomplete="off" required>
+            </div>
+            <!-- Forgot Password -->
+            <small class="ps-2"><a href="{% url 'reset_password' %}">Forgot Password?</a></small><br><br>
+            <!-- Submit Button -->
+            <div>
+                <input class="btn btn-outline-dark w-100 p-2 fw-bold" type="submit" value="Login">
+            </div>
+        </form>
+        <!-- Signup Link -->
+        <div class="mt-3">
+            <p class="text-center">Don't have an account? <a href="{% url 'signup' %}">Sign Up now!</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

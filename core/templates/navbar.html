@@ -1,0 +1,35 @@
+{% load static %}
+<nav>
+    <div class="d-flex justify-content-center align-items-center mb-5">
+        <h5 class="text-center">FruitChain</h5>
+    </div>
+    <div class="mx-2">
+        <ul class="list-unstyled">
+            <li {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}><a href="{% url 'home' %}"><i class="fa-solid fa-house"></i>Home</a></li>
+            <li {% if request.resolver_match.url_name == 'fruits' %}class="active"{% endif %}><a href="{% url 'fruits' %}"><i class="fa-solid fa-apple-whole"></i>Fruits</a></li>
+            {% if request.user.is_staff %}
+            <li {% if request.resolver_match.url_name == 'add_fruit' %}class="active"{% endif %}><a href="{% url 'add_fruit' %}"><i class="fa-solid fa-square-plus"></i>Add Fruit</a></li>
+            <li {% if request.resolver_match.url_name == 'add_vendor' %}class="active"{% endif %}><a href="{% url 'add_vendor' %}"><i class="fa-solid fa-user-plus"></i>Add Vendor</a></li>
+            <li {% if request.resolver_match.url_name == 'archive' %}class="active"{% endif %}><a href="{% url 'archive' %}"><i class="fa-solid fa-box-archive"></i>Stockout list</a></li>
+            <li {% if request.resolver_match.url_name == 'flash_sale_fruits' %}class="active"{% endif %}><a href="{% url 'flash_sale_fruits' %}"><i class="fa-solid fa-fire"></i>Flashsale list</a></li>
+            <li {% if request.resolver_match.url_name == 'orders' %}class="active"{% endif %}><a href="{% url 'orders' %}"><i class="fa-solid fa-truck"></i></i>Manage Orders</a></li>
+            {% elif request.user.is_authenticated %}
+            <li {% if request.resolver_match.url_name == 'cart' or request.resolver_match.url_name == 'checkout' %}class="active"{% endif %}><a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i>Cart</a></li>
+            <li {% if request.resolver_match.url_name == 'wishlist' %}class="active"{% endif %}><a href="{% url 'wishlist' %}"><i class="fa-solid fa-heart"></i>Wishlist</a></li>
+            {% endif %}
+            <li {% if request.resolver_match.url_name == 'contact' %}class="active"{% endif %}><a href="{% url 'contact' %}"><i class="fa-solid fa-address-book"></i></i>Contact Us</a></li>
+            {% if request.user.is_authenticated %}
+            <li style="margin-top: 30%;" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}"><a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i>Profile</a></li>
+            <li {% if request.resolver_match.url_name == 'logout' %}class="active"{% endif %}><a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i>Logout</a></li>
+            {% else %}
+            <li style="margin-top: 30%;" {% if request.resolver_match.url_name == 'signup' %}class="active"{% endif %}"><a href="{% url 'signup' %}"><i class="fa-solid fa-user-plus"></i>Signup</a></li>
+            <li {% if request.resolver_match.url_name == 'login' %}class="active"{% endif %}><a href="{% url 'login' %}"><i class="fa-solid fa-right-to-bracket"></i>Login</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    
+    
+    
+    
+    
+</nav>

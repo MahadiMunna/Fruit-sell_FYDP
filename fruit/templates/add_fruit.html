@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block head_title %}Add Fruits{% endblock %}
+{% load static %}
+{% block content %}
+<div class="form d-flex justify-content-center align-items-center my-3">
+    <div class="d-flex flex-column justify-content-center p-4 rounded rounded shadow-lg" style="width: 640px;  background: #e9e8e8;">
+        <div class="text-center fw-bold mb-3 fs-1">
+            <h3 class="text-center fw-bold ">Add Fruit</h3>
+        </div>
+        <form enctype="multipart/form-data" action="" method="POST">
+            {% csrf_token %}            
+            <!-- fruit Name -->
+            {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                <strong>Error!</strong> Please correct the following errors:
+                <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field }}:{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <div class="d-flex justify-content-between">
+                <div style="width: 47.5%;">
+                    <div>
+                        <img id="previewImage" class="uploaded-image center-image" src="{% static './images/up.png' %}" alt="Preview Image" >
+                    </div>
+                    <div class="input-box">
+                        <div class="input-box">
+                            <label for="uploadImage">Fruit Image:</label>
+                            <input type="file" id="uploadImage" class="input-field" name="image" onchange="displayImage()">
+                            <label class="up-image-label overflow-hidden" for="uploadImage">
+                                <i class="fa-solid fa-upload me-2"></i>
+                                <span class="image-label ">Upload fruit image</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 47.5%;">
+                    <div class="input-box">
+                        <label for="id_name">Fruit name:</label>
+                        <input type="text" id="id_name" class="input-field" placeholder="Enter fruit name" name="name" autocomplete="off" >
+                    </div>
+                    <div class="input-box">
+                        <label for="id_location">Fruit from:</label>
+                        <input type="text" id="id_location" class="input-field" placeholder="Enter fruit location" name="location" autocomplete="off" >
+                    </div>
+                    <div class="input-box">
+                        <label for="id_vendor">Vendor:</label>
+                        {{ form.vendor }}
+                    </div>
+                </div>
+            </div>
+            <!-- Description -->
+            <div class="d-flex justify-content-between">
+                <div style="width: 47.5%;" class="input-box">
+                    <label for="id_description">Fruit description:</label>
+                    <textarea rows="4" id="id_description" class="textarea-field" placeholder="Enter fruit description" name="description"></textarea>
+                </div>
+                <div style="width: 47.5%;">
+                    <div class="input-box">
+                        <label class="d-inline" for="id_supply_date">Supply date:</label>
+                        <input type="date" id="id_supply_date" class="input-field" value="{{ fruit_instance.supply_date|date:'Y-m-d' }}" name="supply_date">
+                    </div>
+                    <div class="input-box">
+                        <label for="id_expiry_date">Expiry date:</label>
+                        <input type="date" id="id_expiry_date" class="input-field" name="expiry_date">
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between gap-3">
+                
+                <div class="input-box">
+                    <label for="id_unit">Quantity-Unit:</label>
+                    <input type="text" id="id_unit" class="input-field" placeholder="Enter quantity with unit" name="unit" >
+                </div>
+                <div class="input-box">
+                    <label for="id_price">Price per unit:</label>
+                    <input type="number" id="id_price" class="input-field" placeholder="Enter price" name="price" >
+                </div>
+                <div class="input-box">
+                    <label for="id_discount">Discount:</label>
+                    <input type="number" id="id_discount" class="input-field" placeholder="Enter discount" name="discount">
+                </div>
+                
+            </div>
+            <div class="my-2">
+                <input class="btn btn-outline-dark w-100 p-2 fw-bold" type="submit" value="Add">
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+     document.addEventListener('DOMContentLoaded', function() {
+        var vendorField = document.getElementById('id_vendor');
+        vendorField.classList.add('input-field');
+    });
+</script>
+{% endblock %}

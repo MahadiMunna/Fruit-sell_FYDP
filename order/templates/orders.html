@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block head_title %}Manage Orders{% endblock %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+
+<div class="container mx-auto text-center">
+  
+    <div class="d-flex justify-content-between my-3">
+      <h4 class="fw-bold">Manage Orders</h4>
+      <a href="{% url 'export_orders_to_excel' %}" class="btn btn-outline-primary">Export to Excel</a>
+    </div>
+    {% if orders %}
+    <table style="margin-bottom: 200px; font-size: 14px;" class="table table-striped border border-3 shadow">
+      <thead>
+        <tr>
+          <th scope="col">Order Id</th>
+          <th scope="col">Customer</th>
+          <th scope="col">Date & Time</th>
+          <th scope="col">Ordered Items</th>
+          <th scope="col">Total Cost</th>
+          <th scope="col">Payment Method</th>
+          <th scope="col">Order Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>
+            {{ order.orderId }}
+          </td>
+          <td>
+            {{ order.user.first_name }} {{ order.user.last_name }}
+          </td>
+          <td>
+            {% if current_datetime|date == order.timestamp|date %}
+            <span class="text-success fw-bold">Today, </span>{{ order.timestamp|time }}
+            {% elif yesterday|date == order.timestamp|date %}
+            <span class="text-primary fw-bold">Yesterday, </span>{{ order.timestamp|time }}
+            {% else %}
+            {{ order.timestamp }}
+            {% endif %}
+          </td>
+          <td>
+            <ul style="padding: 0;">
+              {% for item in order.order_items.all %}
+                  <li>{{ item.item.name }}-{{ item.item.unit }} x {{ item.quantity }}</li>
+              {% endfor %}
+          </ul>
+          </td>
+          
+          <td>{{ order.get_totals }}৳</td>
+          <td>{{ order.payment_method }}</td>
+          <td>
+            {% if order.order_status == 'Delivered' %}
+            <span class="text-success fw-bold">{{ order.order_status }}</span> 
+            {% elif order.order_status == 'Cancelled' %}
+            <span class="text-danger fw-bold">{{ order.order_status }}</span> 
+            {% else %}
+            <span class="text-primary fw-bold">{{ order.order_status }}</span>
+            {% endif %}
+            {% if order.cancelled == False and order.order_status != 'Delivered' %}
+            <a href="{% url 'update-order-status' order.id %}" title="Update Status" > <i class="fa-solid fa-pen-to-square text-primary fs-5"></i></a>
+            {% else %}
+            <a href="{% url 'remove-order' order.id %}" title="Remove Record" > <i class="fa-solid fa-circle-xmark text-danger fs-5"></i></a>
+            {% endif %}
+        </td>
+          
+        </tr>
+        {% endfor %}
+        {% else %}
+        <h4 class="text-center text-secondary" style="margin-top: 100px;">No orders found!</h4>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+{% endblock %}
